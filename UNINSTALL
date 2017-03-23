@@ -1,0 +1,61 @@
+#!/bin/bash
+## Begin Script
+clear
+  
+echo "Welcome to the Library Stack Management System (LSMS) uninstall script."  
+echo "This will delete the MySQL database and library specific variables"
+echo ""
+
+## MySQL Database Setup
+echo "The first step is to collect MySQL Database variables"
+echo ""
+
+## Prompt for Database values
+read -p "MySQL Host [localhost]: " MYSQLHOST
+read -p "MySQL Root User [root]: " MYSQLUSER
+read -p "MySQL Root Password: " -s MYSQLPASS
+echo ""
+read -p "LSMS Database To Delete [LSMS]: " MYSQLDB
+read -p "LSMS Database User To Delete [LSMS]: " MYSQLOLDUSER
+echo ""
+
+
+## Set Defaults if selected
+if [ -z $MYSQLDB ]; then
+  MYSQLDB=LSMS
+fi
+if [ -z $MYSQLOLDUSER ]; then
+  MYSQLOLDUSER=LSMS
+fi
+if [ -z $MYSQLHOST ]; then
+  MYSQLHOST=localhost
+fi
+if [ -z $MYSQLUSER ]; then
+  MYSQLUSER=root
+fi
+
+echo "Are you sure you want to drop database \"$MYSQLDB\" and delete user \"$MYSQLOLDUSER\"?"
+read -p "Type 'yes' or 'y' to continue: " CONFIRM
+echo ""
+
+if [ -z $CONFIRM ]; then
+  CONFIRM="n"
+fi
+
+if [ $CONFIRM == "yes" ] || [ $CONFIRM == "y" ]; then
+  ## Process deleting mysql user and database
+  mysqladmin -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -f drop $MYSQLDB
+  mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "DELETE FROM mysql.user WHERE user = '$MYSQLOLDUSER' AND host = '$MYSQLHOST'"
+  mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "FLUSH PRIVILEGES"
+  echo "Database and user successfully deleted!" 
+  if [ -e "shared/Config.php" ]; then 
+    rm "shared/Config.php"
+    echo "Configuration file successfully deleted!"
+    echo "LSMS has been successfully uninstalled!"
+    echo ""
+  fi
+else
+  echo "Action canceled."
+  echo ""
+fi
+

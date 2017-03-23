@@ -1,0 +1,165 @@
+#!/bin/bash
+## Begin Script
+clear
+
+if [ -e "shared/Config.php" ]; then 
+  echo "LSMS has already been installed, please run uninstall first"
+  echo ""
+  exit
+fi
+
+echo "Welcome to the Library Stack Management System (LSMS) setup script."  
+
+echo "This will setup the MySQL database and library specific variables"
+echo ""
+
+## MySQL Database Setup
+echo "The first step is to install the MySQL Database."
+echo ""
+  
+## Prompt for Database values
+read -p "New Database Name [LSMS] (No dashes): " MYSQLDB
+read -p "New Database User [LSMS]: " MYSQLNEWUSER
+read -p "New User Password: " -s MYSQLNEWPASS
+echo ""
+read -p "MySQL Host [localhost]: " MYSQLHOST
+read -p "MySQL Root User [root]: " MYSQLUSER
+read -p "MySQL Root Password: " -s MYSQLPASS
+echo ""
+
+## Set Defaults if selected
+if [ -z $MYSQLDB ]; then
+   MYSQLDB=LSMS
+fi
+if [ -z $MYSQLNEWUSER ]; then
+  MYSQLNEWUSER=LSMS
+fi
+if [ -z $MYSQLHOST ]; then
+  MYSQLHOST=localhost
+fi
+if [ -z $MYSQLUSER ]; then
+  MYSQLUSER=root
+fi
+
+## Prompt for parameter table variables to be inserted
+echo ""
+echo "The next step is to setup library specific variables"
+echo ""
+echo "The Library database prefix for the voyager database tables: " 
+echo "  -eg. The LIB_CODE in the following:"
+echo "      LIB_CODE.mfhd"
+echo "      LIB_CODE.item"
+echo "      LIB_CODE.location"
+echo "      LIB_CODE.view"
+read -p "LIB_CODE: " LIBRARYCODE
+read -p "Library barcode length: " BARLENGTH 
+read -p "Library barcode prefix: " BARPREFIX
+echo ""
+
+## Process creating mysql user and database
+mysqladmin -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS create $MYSQLDB
+mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "GRANT ALL ON $MYSQLDB.* TO '$MYSQLNEWUSER'@'$MYSQLHOST' IDENTIFIED BY '$MYSQLNEWPASS' WITH GRANT OPTION"
+mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "FLUSH PRIVILEGES"
+mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -D $MYSQLDB < setup.sql
+mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -D $MYSQLDB -e "INSERT INTO parameter (LibCode, BarLength, BarPrefix, ThresholdForLoggingNotOnShelfItem) VALUES ('$LIBRARYCODE', '$BARLENGTH', '$BARPREFIX', '100');"
+
+
+
+echo "The MySQL Database has been created!"
+echo ""
+
+echo "<?php" >> shared/Config.php
+echo "/**" >> shared/Config.php
+echo " * Library Stack Management System (LSMS)" >> shared/Config.php
+echo " *" >> shared/Config.php
+echo " * @package   LSMS" >> shared/Config.php
+echo " * @author    Nackil Sung, Erin Kim" >> shared/Config.php
+echo " * @since   Version 1.0" >> shared/Config.php
+echo " */" >> shared/Config.php
+echo "" >> shared/Config.php
+echo "/**" >> shared/Config.php
+echo " * LSMS configuration file" >> shared/Config.php
+echo " *" >> shared/Config.php
+echo " * This file contains global variables for configuration" >> shared/Config.php
+echo " *" >> shared/Config.php
+echo " * @package   LSMS" >> shared/Config.php
+echo " * @author    Nackil Sung, Erin Kim" >> shared/Config.php
+echo " * @since   Version 1.0" >> shared/Config.php
+echo " */" >> shared/Config.php
+echo "" >> shared/Config.php
+echo "/*" >> shared/Config.php
+echo "| -------------------------------------------------------------------" >> shared/Config.php
+echo "| EXPLANATION OF VARIABLES" >> shared/Config.php
+echo "| -------------------------------------------------------------------" >> shared/Config.php
+echo "|" >> shared/Config.php
+echo "| \$SYSTEM_BASE_URL The base URL where the system was installed in, excluding the trailing slash, '/'." >> shared/Config.php
+echo "|                     - eg. http://library.state.edu/LSMS" >> shared/Config.php
+echo "| \$LSMS_USERNAME   The username to sign into any LSMS.  This will only be required once per session" >> shared/Config.php
+echo "| \$LSMS_PASSWORD   The password to sign into any LSMS.  This will only be required once per session" >> shared/Config.php
+echo "| \$ORA_HOME        The installation directory of Oracle with the 'ORACLE_HOME=' prefix" >> shared/Config.php
+echo "|                     - eg. ORACLE_HOME=/oracle/app/oracle/product/10.2.0/db_1" >> shared/Config.php
+echo "| \$ORA_USERNAME    The username to connect to the oracle database" >> shared/Config.php
+echo "| \$ORA_PASSWORD    The password to connect to the oracle database" >> shared/Config.php
+echo "| \$ORA_CONNECTION  Contains the Oracle instance to connect to" >> shared/Config.php
+echo "|                     - It can be an Easy Connect string, or a Connect " >> shared/Config.php
+echo "|                       Name from the tnsnames.ora file, or the name of " >> shared/Config.php
+echo "|                       a local Oracle instance." >> shared/Config.php
+echo "|                     - host_name[:port][/service_name]" >> shared/Config.php
+echo "|                     - eg. library.state.edu/VGER.library.state.edu" >> shared/Config.php
+echo "| \$MYSQL_SERVER    The MySQL server. It can also include a port number. e.g. \"hostname:port\"" >> shared/Config.php
+echo "| \$MYSQL_USERNAME  The username to connect to the mysql database" >> shared/Config.php
+echo "| \$MYSQL_PASSWORD  The password to connect to the mysql database" >> shared/Config.php
+echo "| \$MYSQL_DATABASE  The database the LSMS is using" >> shared/Config.php
+echo "| \$LIBRARY_CODE    The Library database prefix for the voyager database tables." >> shared/Config.php
+echo "|                     -eg. the \$LIBRARY_CODE in the following:" >> shared/Config.php
+echo "|                          \$LIBRARY_CODE.mfhd" >> shared/Config.php
+echo "|                          \$LIBRARY_CODE.item" >> shared/Config.php
+echo "|                          \$LIBRARY_CODE.location" >> shared/Config.php
+echo "|                          \$LIBRARY_CODE.view" >> shared/Config.php
+echo "| -------------------------------------------------------------------" >> shared/Config.php
+echo "*/" >> shared/Config.php
+echo "" >> shared/Config.php
+echo "" >> shared/Config.php
+echo "// -- Please fill in variables below --" >> shared/Config.php
+echo "" >> shared/Config.php
+echo "\$SYSTEM_BASE_URL = \"\";" >> shared/Config.php
+echo "" >> shared/Config.php
+echo "\$LSMS_USERNAME = \"\";" >> shared/Config.php
+echo "\$LSMS_PASSWORD = \"\";" >> shared/Config.php
+echo "" >> shared/Config.php
+echo "// Oracale Connection Variables" >> shared/Config.php
+echo "\$ORA_HOME       = \"ORACLE_HOME=\";" >> shared/Config.php
+echo "\$ORA_USERNAME   = \"\";" >> shared/Config.php
+echo "\$ORA_PASSWORD   = \"\";" >> shared/Config.php
+echo "\$ORA_CONNECTION = \"\";" >> shared/Config.php
+echo "putenv(\$ORA_HOME);" >> shared/Config.php
+echo "" >> shared/Config.php
+echo "" >> shared/Config.php
+echo "" >> shared/Config.php
+echo "" >> shared/Config.php
+echo "// !!! DO NOT EDIT BELOW THIS LINE !!!" >> shared/Config.php
+echo "// -- Variables generated from install script --" >> shared/Config.php
+echo "// MySQL Connection Variables" >> shared/Config.php
+echo "\$MYSQL_SERVER   = \"$MYSQLHOST\";" >> shared/Config.php
+echo "\$MYSQL_USERNAME = \"$MYSQLNEWUSER\";" >> shared/Config.php
+echo "\$MYSQL_PASSWORD = \"$MYSQLNEWPASS\";" >> shared/Config.php
+echo "\$MYSQL_DATABASE = \"$MYSQLDB\";" >> shared/Config.php
+echo "" >> shared/Config.php
+echo "// Library Database Prefix" >> shared/Config.php
+echo "\$LIBRARY_CODE = \"$LIBRARYCODE\"; " >> shared/Config.php
+
+echo "The configuration file has been created!"
+echo ""
+echo "Next steps:"
+echo "1. Access the configuration file in shared/Config.php and fill in the rest of"
+echo "   the required variables to complete installation"
+echo ""
+echo "2. Use your web browser to access the Location Manager at http://<webroot>/LSMS/locationmanager"
+echo "   to setup the locations you will be using with the system"
+echo ""
+echo "3. Complete!"
+echo "   Begin using the system at http://<webroot>/LSMS"
+echo "   If you want to access the Session Manager, you may do so here: http://<webroot>/LSMS/sessionmanager"
+echo ""
+
+
