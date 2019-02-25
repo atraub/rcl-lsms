@@ -30,7 +30,7 @@ $getArray  = explode('&', $_SERVER['QUERY_STRING']);
 
 $j = 0;
 for($i = 0; $i < count($getArray); $i++) {
-  $getPair = split('=', $getArray[$i]);
+  $getPair = explode('=', $getArray[$i]);
   if($getPair[0] == "SessionID") {
     $sessionsArray[$j] = $getPair[1];
     $j++;
@@ -47,7 +47,7 @@ $rowcounter = 2;
 // Header HTML
 
 
-if($_GET['SessionID'] == "") {
+if(!isSet($_GET['SessionID']) || $_GET['SessionID'] == "") {
   include_once 'header.php';
   echo "No Session ID has been selected<br /><a href='index.php?fromSession=$fromSession&toSession=$toSession'>Back</a>";
   return 0;

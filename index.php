@@ -180,7 +180,8 @@ backColor[4] = '#0000FF';  //Blue - Scan Error: barcode length, prefix
 
 function changeBG(whichColor){
   $("body").css("background-color", backColor[whichColor]);
-
+  console.log("I am in in changeBG ");
+  console.log(whichColor);
 
 }
 
@@ -381,7 +382,7 @@ function ajaxFunction(str) {
       if (vItemID == "") {
         changeBG(1);
         EvalSound('error');
-        alert("Not Found");
+        //alert("Not Found");
         document.getElementById("LSMS").innerHTML= "** Not Found ** " + vItemBar+ "\<br\>" + document.getElementById("LSMS").innerHTML;
         vStr = "?barcode="+vItemBar+"&Session="+vSession+"&Status=N";
         ajaxFunction2(vStr);
@@ -389,7 +390,7 @@ function ajaxFunction(str) {
       else if (vItemID==null) {
         changeBG(1);
         EvalSound('error');
-        alert("Not Found.\n\n  Try again with other items.  If you experience the same error, check the network connection.");
+        //alert("Not Found.\n\n  Try again with other items.  If you experience the same error, check the network connection.");
         document.getElementById("LSMS").innerHTML= "** Not Found ** " + vItemBar+ "\<br\>" + document.getElementById("LSMS").innerHTML;
       }
       else {
@@ -398,7 +399,7 @@ function ajaxFunction(str) {
           vstartLoc = vLoc;
           visNewLoc = "Y";
           vstartLocID[vstartLocID.length] = vLocID;
-          alert("First Scanned Item.\n\nLocation: "+vstartLoc);
+          //alert("First Scanned Item.\n\nLocation: "+vstartLoc);
           document.getElementById("Location").innerHTML=vstartLoc;
           vStr = "?Loc="+vLoc+"&barcode="+vItemBar+"&ItemID="+vItemID+"&CallNum="+vCallDisp+"&ENum="+vEnum+"&Copynum="+vCopynum+"&LocID="+vLocID+"&ActiveStatusID="+vStatusID+"&Session="+vSession;
         }
@@ -419,7 +420,7 @@ function ajaxFunction(str) {
           vPreCopynum = vCopynum;
           changeBG(2);
           EvalSound('error');
-          alert("Active status item!\n\n"+vStatus);
+          //alert("Active status item!\n\n"+vStatus);
           vStr = "?Loc="+vLoc+"&barcode="+vItemBar+"&ItemID="+vItemID+"&CallNum="+vCallDisp+"&ENum="+vEnum+"&Copynum="+vCopynum+"&LocID="+vLocID+"&ActiveStatusID="+vStatusID+"&Session="+vSession+"&Status=A"
           ajaxFunction2(vStr);
           document.getElementById("LSMS").innerHTML= "** Wrong Status ** " + vItemBar+" "+ vStatus+" " + vLocID+" " + vCallDisp+" " + vEnum+" " + vCopynum +"\<br\>" + document.getElementById("LSMS").innerHTML;
@@ -499,6 +500,7 @@ function ajaxFunction(str) {
 
           vPreEnum = vEnum;
           vPreCopynum = vCopynum;
+          changeBG(3); //added sg
           vStr = "?Loc="+vLoc+"&barcode="+vItemBar+"&ItemID="+vItemID+"&CallNum="+vCallDisp+"&ENum="+vEnum+"&Copynum="+vCopynum+"&LocID="+vLocID+"&ActiveStatusID="+vStatusID+"&Session="+vSession;
           document.getElementById("LSMS").innerHTML= vItemBar+" "+ vStatus+" " + vLocID+" " + vCallDisp+" " + vEnum+" " + vCopynum+ "\<br\>" + document.getElementById("LSMS").innerHTML;
           ajaxFunction2(vStr);
@@ -508,7 +510,7 @@ function ajaxFunction(str) {
       }
 
       document.getElementById('barcode').value = "";
-      changeBG(3);
+      //changeBG(3);
       EvalSound('ready');
       defaultfocus();
       initializeVar();

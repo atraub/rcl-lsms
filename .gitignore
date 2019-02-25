@@ -40,3 +40,7 @@ Thumbs.db
 ##############
 shared/Config.php
 shared/configbackups
+*_ORIG*
+*_BAK*
+*-old*
+.htaccess*
